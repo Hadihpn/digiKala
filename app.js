@@ -3,6 +3,7 @@ const express = require("express")
 require("dotenv").config();
 const port = process.env.PORT
 const app = express();
+require("./src/config/sequelize.config")
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use((req,res,next)=>{
@@ -17,5 +18,5 @@ app.use((err,req,res,next)=>{
         messsage
     })
 })
-app.listen(port??3000,()=>{
+app.listen(3000,()=>{
     console.log(`connected to server On :http://127.0.0.1:${port}`);})
