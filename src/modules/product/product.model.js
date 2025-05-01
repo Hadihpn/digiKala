@@ -8,7 +8,6 @@ const Product = sequelize.define(
     title: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: { required: true, notEmpty: true },
     },
     price: { type: DataTypes.DECIMAL },
     active_discount: {
