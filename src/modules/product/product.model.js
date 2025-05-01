@@ -57,6 +57,7 @@ const ProductColor = sequelize.define(
       defaultValue: 0,
       allowNull: true,
     },
+    productId: { type: DataTypes.INTEGER },
   },
   {
     modelName: "product_color",
@@ -76,6 +77,7 @@ const ProductSize = sequelize.define(
       defaultValue: 0,
       allowNull: true,
     },
+    productId: { type: DataTypes.INTEGER },
   },
   {
     modelName: "product_size",
