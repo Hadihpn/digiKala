@@ -1,9 +1,14 @@
-const { config } = require("dotenv");
 const express = require("express")
 require("dotenv").config();
 const port = process.env.PORT
-const app = express();
-require("./src/config/sequelize.config")
+const sequelize = require("./src/config/sequelize.config")
+async function call_models() {
+    require("./src/modules/product/product.model")
+}
+async function main() {
+    const app = express();
+await call_models()
+await sequelize.sync({alter:true})
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use((req,res,next)=>{
@@ -20,3 +25,5 @@ app.use((err,req,res,next)=>{
 })
 app.listen(3000,()=>{
     console.log(`connected to server On :http://127.0.0.1:${port}`);})
+}
+main()
