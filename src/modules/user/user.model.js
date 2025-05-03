@@ -7,6 +7,8 @@ const User = sequelize.define(
     fullName: { type: DataTypes.STRING, allowNull: true },
     phone: { type: DataTypes.STRING, allowNull: false },
     otpId: { type: DataTypes.INTEGER, allowNull: true },
+    access_token:{type:DataTypes.STRING,allowNull:true},
+    refresh_token:{type:DataTypes.STRING,allowNull:true}
   },
   {
     modelName: "user",
