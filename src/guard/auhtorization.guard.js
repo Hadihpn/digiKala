@@ -9,7 +9,8 @@ async function Authorization(req, res, next) {
     const { authorization } = req?.headers;
     if (!authorization)
       throw new createHttpError(StatusCodes.UNAUTHORIZED, "invalid token");
-    const [bearer, token] = authorization?.split(" ");
+    const [bearer, token] = authorization?.split(" ") ;
+    if(!bearer || bearer?.toLowerCase()!=="bearer")  throw new createHttpError(StatusCodes.UNAUTHORIZED, "invalid token")
     const verified = await jwt.verify(token, process.env.JWT_SECRET_KEY);
     if (!verified || !verified.phone)
       throw new createHttpError(StatusCodes.UNAUTHORIZED, "invalid token");

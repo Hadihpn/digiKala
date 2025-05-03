@@ -6,6 +6,7 @@ const { randomInt } = require("crypto");
 const { signToken } = require("../../utils/function");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const { RefreshToken } = require("../user/refreshToken.model");
 async function sendOtpHandler(req, res, next) {
   const { phone } = req.body;
   if (!phone)
@@ -78,7 +79,7 @@ async function checkOtpHandler(req, res, next) {
       StatusCodes.BAD_REQUEST,
       "the otp has been expired .try to get new one"
     );
-  if (user.otp.code !== code)
+  if (user.otp.code !== code || user.otp.isUsed)
     throw createHttpError(StatusCodes.BAD_REQUEST, "your otp code is invalid");
   const { accessToken, refreshToken } = await signToken({ phone }, "1d", "7d");
   user["access_token"] = accessToken;
@@ -95,6 +96,9 @@ async function verifyRefreshTokenHandler(req, res, next) {
     const { refreshToken } = req.body;
     if (!refreshToken)
       throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid refreshToken");
+    const existToken = await RefreshToken.findOne({where:{token:refreshToken}})
+    if(existToken)  throw createHttpError(StatusCodes.BAD_REQUEST, " token expird");
+    
     const verified = await jwt.verify(
       refreshToken,
       process.env.REFRESH_SECRET_KEY
@@ -105,6 +109,11 @@ async function verifyRefreshTokenHandler(req, res, next) {
     if (!user)
       throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid refresh token");
     const tokens = await signToken({ phone }, "1d", "7d");
+
+    await RefreshToken.create({
+      token:refreshToken,
+      userId:user.id
+    })
     return res.json({
       message: "youre logged in successfully",
       accessToken: tokens.accessToken,

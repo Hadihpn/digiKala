@@ -7,8 +7,8 @@ const User = sequelize.define(
     fullName: { type: DataTypes.STRING, allowNull: true },
     phone: { type: DataTypes.STRING, allowNull: false },
     otpId: { type: DataTypes.INTEGER, allowNull: true },
-    access_token:{type:DataTypes.STRING,allowNull:true},
-    refresh_token:{type:DataTypes.STRING,allowNull:true}
+    access_token:{type:DataTypes.TEXT,allowNull:true},
+    refresh_token:{type:DataTypes.TEXT,allowNull:true}
   },
   {
     modelName: "user",
@@ -23,6 +23,7 @@ const Otp = sequelize.define(
     userId: { type: DataTypes.INTEGER, allowNull: false },
     code: { type: DataTypes.STRING, allowNull: false },
     expires_in: { type: DataTypes.DATE, allowNull: false },
+    isUsed: { type: DataTypes.BOOLEAN, defaultValue:false},
   },
   {
     modelName: "user_otp",
