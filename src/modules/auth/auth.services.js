@@ -9,15 +9,15 @@ async function sendOtpHandler(req, res, next) {
   if (!phone)
     throw createHttpError(StatusCodes.NOT_FOUND, "Invalid user phone");
   const now = Date.now();
-const time = process.env.OTP_Time_Exp  
-  const expiresTime=new Date(now + parseInt(time));
+  const time = process.env.OTP_Time_Exp;
+  const expiresTime = new Date(now + parseInt(time));
   console.log(expiresTime);
-  
+
   const newOtp = {
     code: randomInt(10000, 99999),
     expires_in: expiresTime,
   };
-  
+
   const user = await User.findOne({ where: { phone } });
   if (!user) {
     const user = await User.create({
@@ -25,7 +25,7 @@ const time = process.env.OTP_Time_Exp
     });
     newOtp.userId = user?.id;
     console.log(newOtp);
-    
+
     const otp = await Otp.create(newOtp);
     return res.json({
       message: "5 digit otp code send to you",
@@ -41,16 +41,14 @@ const time = process.env.OTP_Time_Exp
         code: otp.code,
       });
     } else {
-        console.log("object",now);
-        console.log("object",new Date(userOtp.expires_in).getTime());
+      console.log("object", now);
+      console.log("object", new Date(userOtp.expires_in).getTime());
       if (new Date(userOtp.expires_in).getTime() > now) {
-         throw new createHttpError.Unauthorized(
-          "last otp is valid "
-        );
+        throw new createHttpError.Unauthorized("last otp is valid ");
       }
       userOtp.code = newOtp.code;
       userOtp.expires_in = newOtp.expires_in;
-      await userOtp.save()
+      await userOtp.save();
       return res.json({
         message: "5 digit otp code send to you",
         code: userOtp.code,
@@ -58,7 +56,34 @@ const time = process.env.OTP_Time_Exp
     }
   }
 }
+async function checkOtpHandler(req, res, next) {
+  const { phone, code } = req.body;
+  if (!phone)
+    throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid user phone");
+  const now = Date.now();
+  const time = process.env.OTP_Time_Exp;
+  // const expiresTime = new Date(now + parseInt(time));
 
+  const user = await User.findOne({
+    where: { phone },
+    include: [ {model: { Otp, as: "otp" } }]},
+  );
+  if (!user) {
+    throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid user phone");
+  }
+  if (user?.otp && user?.otp?.expires_in < new Date())
+    throw createHttpError(
+      StatusCodes.BAD_REQUEST,
+      "the otp has been expired .try to get new one"
+    );
+  if (user.otp.code !== code)
+    throw createHttpError(StatusCodes.BAD_REQUEST, "your otp code is invalid");
+
+  return res.json({
+    message: "youre logged in successfully",
+  });
+}
 module.exports = {
   sendOtpHandler,
+  checkOtpHandler
 };
