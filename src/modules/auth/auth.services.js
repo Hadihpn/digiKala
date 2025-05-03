@@ -1,5 +1,5 @@
-const { StatusCodes } = require("http-status-codes");
 const { User, Otp } = require("../user/user.model");
+const { StatusCodes } = require("http-status-codes");
 const createHttpError = require("http-error");
 const { where } = require("sequelize");
 const { randomInt } = require("crypto");
