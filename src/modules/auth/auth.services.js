@@ -3,7 +3,9 @@ const { User, Otp } = require("../user/user.model");
 const createHttpError = require("http-error");
 const { where } = require("sequelize");
 const { randomInt } = require("crypto");
+const { signToken } = require("../../utils/function");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
 async function sendOtpHandler(req, res, next) {
   const { phone } = req.body;
   if (!phone)
@@ -66,8 +68,8 @@ async function checkOtpHandler(req, res, next) {
 
   const user = await User.findOne({
     where: { phone },
-    include: [ {model: { Otp, as: "otp" } }]},
-  );
+    include: [{ model: { Otp, as: "otp" } }],
+  });
   if (!user) {
     throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid user phone");
   }
@@ -78,12 +80,42 @@ async function checkOtpHandler(req, res, next) {
     );
   if (user.otp.code !== code)
     throw createHttpError(StatusCodes.BAD_REQUEST, "your otp code is invalid");
-
+  const { accessToken, refreshToken } = await signToken({ phone }, "1d", "7d");
+  user["access_token"] = accessToken;
+  user["refresh_token"] = refreshToken;
+  await user.save();
   return res.json({
     message: "youre logged in successfully",
+    accessToken,
+    refreshToken,
   });
+}
+async function verifyRefreshTokenHandler(req, res, next) {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken)
+      throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid refreshToken");
+    const verified = await jwt.verify(
+      refreshToken,
+      process.env.REFRESH_SECRET_KEY
+    );
+    if (!verified?.phone)
+      throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid refreshToken");
+    const user = await User.findOne({ phone: verified.phone });
+    if (!user)
+      throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid refresh token");
+    const tokens = await signToken({ phone }, "1d", "7d");
+    return res.json({
+      message: "youre logged in successfully",
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 module.exports = {
   sendOtpHandler,
-  checkOtpHandler
+  checkOtpHandler,
+  verifyRefreshTokenHandler,
 };

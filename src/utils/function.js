@@ -14,7 +14,6 @@ async function signToken(payload, jwtExpiresIn = process.env.JWT_Time_Exp,refres
   const refreshToken = await jwt.sign(payload, REFRESH_SECRET_KEY, { refreshExpiresIn });
   return {accessToken,refreshToken}
 }
-
 module.exports = {
   createOtp,
   signToken
