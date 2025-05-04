@@ -1,4 +1,5 @@
 const { Basket } = require("../modules/basket/basket.model");
+const { Discount } = require("../modules/discount/discount.model");
 const {
   Product,
   ProductDetail,
@@ -42,12 +43,16 @@ async function initDatabase() {
   //#region Basket
   User.hasMany(Basket,{foreignKey:"userId",sourceKey:"id", as: "basket"})
   Product.hasMany(Basket,{foreignKey:"productId",sourceKey:"id", as: "basket"})
-  ProductColor.hasMany(Basket,{foreignKey:"colorId",sourceKey:"id", as: "color"})
-  ProductSize.hasMany(Basket,{foreignKey:"sizeId",sourceKey:"id", as: "size"})
+  ProductColor.hasMany(Basket,{foreignKey:"colorId",sourceKey:"id", as: "basket"})
+  ProductSize.hasMany(Basket,{foreignKey:"sizeId",sourceKey:"id", as: "basket"})
   Basket.belongsTo(User,{foreignKey:"userId",targetKey:"id",as:"user"})
   Basket.belongsTo(Product,{foreignKey:"productId",targetKey:"id",as:"product"})
   Basket.belongsTo(ProductColor,{foreignKey:"colorId",targetKey:"id",as:"color"})
   Basket.belongsTo(ProductSize,{foreignKey:"sizeId",targetKey:"id",as:"size"})
+  //#endregion
+  //#region Discount
+   Discount.hasMany(Basket,{foreignKey:"discountId",sourceKey:"id",as:"basket"})
+   Basket.belongsTo(Discount,{foreignKey:"discountId",targetKey:"id",as:"basket"})
   //#endregion
   await sequelize.sync({ force: true });
 }
