@@ -96,9 +96,12 @@ async function verifyRefreshTokenHandler(req, res, next) {
     const { refreshToken } = req.body;
     if (!refreshToken)
       throw createHttpError(StatusCodes.BAD_REQUEST, "Invalid refreshToken");
-    const existToken = await RefreshToken.findOne({where:{token:refreshToken}})
-    if(existToken)  throw createHttpError(StatusCodes.BAD_REQUEST, " token expird");
-    
+    const existToken = await RefreshToken.findOne({
+      where: { token: refreshToken },
+    });
+    if (existToken)
+      throw createHttpError(StatusCodes.BAD_REQUEST, " token expird");
+
     const verified = await jwt.verify(
       refreshToken,
       process.env.REFRESH_SECRET_KEY
@@ -111,9 +114,9 @@ async function verifyRefreshTokenHandler(req, res, next) {
     const tokens = await signToken({ phone }, "1d", "7d");
 
     await RefreshToken.create({
-      token:refreshToken,
-      userId:user.id
-    })
+      token: refreshToken,
+      userId: user.id,
+    });
     return res.json({
       message: "youre logged in successfully",
       accessToken: tokens.accessToken,
