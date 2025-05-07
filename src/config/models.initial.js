@@ -100,9 +100,17 @@ async function initDatabase() {
     as: "order",
   });
   User.hasMany(Order, { foreignKey: "userId", sourceKey: "id", as: "orders" });
- Order.hasOne(Payment,{foreignKey:"orderId",sourceKey:"id",as:"payment"})
- Payment.hasOne(Order,{foreignKey:"paymentId",sourceKey:"id",as:"order"})
-  //#endregion
+  Order.hasOne(Payment, {
+    foreignKey: "orderId",
+    sourceKey: "id",
+    as: "payment",
+  });
+  Payment.hasOne(Order, {
+    foreignKey: "paymentId",
+    sourceKey: "id",
+    as: "order",
+  });
+  //#endregionk
   await sequelize.sync({ force: true });
 }
 module.exports = initDatabase;

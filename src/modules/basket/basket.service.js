@@ -57,114 +57,123 @@ async function addToBasketHandler(req, res, next) {
 async function getUserBasket(req, res, next) {
   try {
     const { id: userId } = req.user;
-    const baskets = await Basket.findAll({
-      where: { userId },
-      include: [
-        { model: { Product, as: "product" } },
-        { model: { ProductColor, as: "color" } },
-        { model: { ProductSize, as: "size" } },
-      ],
-    });
-    const totalAmount = 0;
-    const totalDiscount = 0;
-    const finalAmount = 0;
-    const finalBasket = [];
-    for (const item of baskets) {
-      const { product, size, color, count } = item;
-      const productIndex = finalBasket.findIndex(
-        (item) => item.id === product.id
-      );
-      let productData = finalBasket.find((item) => item.id === product.id);
-      if (!productData) {
-        productData = {
-          id: product.id,
-          title: product.title,
-          price: product.price,
-          type: product.type,
-          count,
-          colors: [],
-          sizes: [],
-        };
-      } else {
-        productData.cout += count;
-      }
-
-      if (product?.type === ProductTypes.Coloring && color) {
-        let price = color?.price * count;
-        totalAmount += price;
-        let discountAmount = 0;
-        let finalPrice = price;
-        if (color?.active_discount && color.discount > 0) {
-          discountAmount = color?.price * (color?.discount / 100);
-          totalDiscount += discountAmount;
-        }
-        finalPrice = price - discountAmount;
-        finalAmount += finalPrice;
-        productData["colors"].push({
-          id: color.id,
-          color_name: color?.color_name,
-          color_code: color?.color_code,
-          count,
-          price,
-          discountAmount,
-          finalPrice,
-        });
-      } else if (product?.type === ProductTypes.Sizing && size) {
-        let price = size?.price * count;
-        totalAmount += price;
-        let discountAmount = 0;
-        let finalPrice = price;
-        if (size?.active_discount && size.discount > 0) {
-          discountAmount = color?.price * (size?.discount / 100);
-          totalDiscount += discountAmount;
-        }
-        finalPrice = price - discountAmount;
-        finalAmount += finalPrice;
-        productData["sizes"].push({
-          id: color.id,
-          size_name: color?.size_name,
-          size_code: color?.size_code,
-          count,
-          price,
-          discountAmount,
-          finalPrice,
-        });
-      } else if (product?.type === ProductTypes.Single && product) {
-        let price = product?.price * count;
-        totalAmount += price;
-        let discountAmount = 0;
-        let finalPrice = price;
-        if (product?.active_discount && product.discount > 0) {
-          discountAmount = product?.price * (product?.discount / 100);
-          totalDiscount += discountAmount;
-        }
-        finalPrice = price - discountAmount;
-        finalAmount += finalPrice;
-        productData["sizes"].push({
-          id: color.id,
-          size_name: color?.size_name,
-          size_code: color?.size_code,
-          count,
-          price,
-          discountAmount,
-          finalPrice,
-        });
-        productData["finalPrice"] = finalPrice;
-        productData["discountAmount"] = discountAmount;
-      }
-      if (productIndex > -1) {
-        finalBasket[productIndex] = productData;
-      }else{
-        finalBasket.push(productData)
-      }
-      return res.json({
-        totalAmount,totalDiscount,finalAmount,baskets:finalBasket })
-    }
+const userBasket = await getUserBasketByUserId(userId)
+    return res.json(userBasket);
   } catch (error) {
     next(error);
   }
 }
+async function getUserBasketByUserId(userId) {
+  const baskets = await Basket.findAll({
+    where: { userId },
+    include: [
+      { model: { Product, as: "product" } },
+      { model: { ProductColor, as: "color" } },
+      { model: { ProductSize, as: "size" } },
+    ],
+  });
+  const totalAmount = 0;
+  const totalDiscount = 0;
+  const finalAmount = 0;
+  const finalBasket = [];
+  for (const item of baskets) {
+    const { product, size, color, count } = item;
+    const productIndex = finalBasket.findIndex(
+      (item) => item.id === product.id
+    );
+    let productData = finalBasket.find((item) => item.id === product.id);
+    if (!productData) {
+      productData = {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        type: product.type,
+        count,
+        colors: [],
+        sizes: [],
+      };
+    } else {
+      productData.cout += count;
+    }
+
+    if (product?.type === ProductTypes.Coloring && color) {
+      let price = color?.price * count;
+      totalAmount += price;
+      let discountAmount = 0;
+      let finalPrice = price;
+      if (color?.active_discount && color.discount > 0) {
+        discountAmount = color?.price * (color?.discount / 100);
+        totalDiscount += discountAmount;
+      }
+      finalPrice = price - discountAmount;
+      finalAmount += finalPrice;
+      productData["colors"].push({
+        id: color.id,
+        color_name: color?.color_name,
+        color_code: color?.color_code,
+        count,
+        price,
+        discountAmount,
+        finalPrice,
+      });
+    } else if (product?.type === ProductTypes.Sizing && size) {
+      let price = size?.price * count;
+      totalAmount += price;
+      let discountAmount = 0;
+      let finalPrice = price;
+      if (size?.active_discount && size.discount > 0) {
+        discountAmount = color?.price * (size?.discount / 100);
+        totalDiscount += discountAmount;
+      }
+      finalPrice = price - discountAmount;
+      finalAmount += finalPrice;
+      productData["sizes"].push({
+        id: color.id,
+        size_name: color?.size_name,
+        size_code: color?.size_code,
+        count,
+        price,
+        discountAmount,
+        finalPrice,
+      });
+    } else if (product?.type === ProductTypes.Single && product) {
+      let price = product?.price * count;
+      totalAmount += price;
+      let discountAmount = 0;
+      let finalPrice = price;
+      if (product?.active_discount && product.discount > 0) {
+        discountAmount = product?.price * (product?.discount / 100);
+        totalDiscount += discountAmount;
+      }
+      finalPrice = price - discountAmount;
+      finalAmount += finalPrice;
+      productData["sizes"].push({
+        id: color.id,
+        size_name: color?.size_name,
+        size_code: color?.size_code,
+        count,
+        price,
+        discountAmount,
+        finalPrice,
+      });
+      productData["finalPrice"] = finalPrice;
+      productData["discountAmount"] = discountAmount;
+    }
+    if (productIndex > -1) {
+      finalBasket[productIndex] = productData;
+    } else {
+      finalBasket.push(productData);
+    }
+  }
+  return {
+    totalAmount,
+    totalDiscount,
+    finalAmount,
+    baskets: finalBasket,
+  };
+}
 module.exports = {
   addToBasketHandler,
-  getUserBasket
+  getUserBasket,
+  getUserBasketByUserId
 };
