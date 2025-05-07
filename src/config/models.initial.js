@@ -1,5 +1,7 @@
 const { Basket } = require("../modules/basket/basket.model");
 const { Discount } = require("../modules/discount/discount.model");
+const { OrderItems, Order } = require("../modules/order/order.model");
+const { Payment } = require("../modules/payment/payment.model");
 const {
   Product,
   ProductDetail,
@@ -41,18 +43,65 @@ async function initDatabase() {
   Otp.belongsTo(User, { foreignKey: "userId", targetKey: "id" });
   //#endregion
   //#region Basket
-  User.hasMany(Basket,{foreignKey:"userId",sourceKey:"id", as: "basket"})
-  Product.hasMany(Basket,{foreignKey:"productId",sourceKey:"id", as: "basket"})
-  ProductColor.hasMany(Basket,{foreignKey:"colorId",sourceKey:"id", as: "basket"})
-  ProductSize.hasMany(Basket,{foreignKey:"sizeId",sourceKey:"id", as: "basket"})
-  Basket.belongsTo(User,{foreignKey:"userId",targetKey:"id",as:"user"})
-  Basket.belongsTo(Product,{foreignKey:"productId",targetKey:"id",as:"product"})
-  Basket.belongsTo(ProductColor,{foreignKey:"colorId",targetKey:"id",as:"color"})
-  Basket.belongsTo(ProductSize,{foreignKey:"sizeId",targetKey:"id",as:"size"})
+  User.hasMany(Basket, { foreignKey: "userId", sourceKey: "id", as: "basket" });
+  Product.hasMany(Basket, {
+    foreignKey: "productId",
+    sourceKey: "id",
+    as: "basket",
+  });
+  ProductColor.hasMany(Basket, {
+    foreignKey: "colorId",
+    sourceKey: "id",
+    as: "basket",
+  });
+  ProductSize.hasMany(Basket, {
+    foreignKey: "sizeId",
+    sourceKey: "id",
+    as: "basket",
+  });
+  Basket.belongsTo(User, { foreignKey: "userId", targetKey: "id", as: "user" });
+  Basket.belongsTo(Product, {
+    foreignKey: "productId",
+    targetKey: "id",
+    as: "product",
+  });
+  Basket.belongsTo(ProductColor, {
+    foreignKey: "colorId",
+    targetKey: "id",
+    as: "color",
+  });
+  Basket.belongsTo(ProductSize, {
+    foreignKey: "sizeId",
+    targetKey: "id",
+    as: "size",
+  });
   //#endregion
   //#region Discount
-   Discount.hasMany(Basket,{foreignKey:"discountId",sourceKey:"id",as:"basket"})
-   Basket.belongsTo(Discount,{foreignKey:"discountId",targetKey:"id",as:"basket"})
+  Discount.hasMany(Basket, {
+    foreignKey: "discountId",
+    sourceKey: "id",
+    as: "basket",
+  });
+  Basket.belongsTo(Discount, {
+    foreignKey: "discountId",
+    targetKey: "id",
+    as: "basket",
+  });
+  //#endregion
+  //#region Order
+  Order.hasMany(OrderItems, {
+    foreignKey: "orderId",
+    sourceKey: "id",
+    as: "items",
+  });
+  OrderItems.belongsTo(Order, {
+    foreignKey: "orderId",
+    targetKey: "id",
+    as: "order",
+  });
+  User.hasMany(Order, { foreignKey: "userId", sourceKey: "id", as: "orders" });
+ Order.hasOne(Payment,{foreignKey:"orderId",sourceKey:"id",as:"payment"})
+ Payment.hasOne(Order,{foreignKey:"paymentId",sourceKey:"id",as:"order"})
   //#endregion
   await sequelize.sync({ force: true });
 }
