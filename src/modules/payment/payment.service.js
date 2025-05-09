@@ -101,6 +101,7 @@ async function paymentVerifyHandler(req, res, next) {
     res.redirect("https://frontenddomain.com/payment?status=failure");
   }
 }
+
 module.exports = {
   paymentBasketHanlder,
   paymentVerifyHandler,

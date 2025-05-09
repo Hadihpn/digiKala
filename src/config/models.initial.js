@@ -104,13 +104,17 @@ async function initDatabase() {
     foreignKey: "orderId",
     sourceKey: "id",
     as: "payment",
+    onDelete:"CASCADE"
   });
   Payment.hasOne(Order, {
     foreignKey: "paymentId",
     sourceKey: "id",
     as: "order",
+     onDelete:"CASCADE"
   });
-  //#endregionk
+  //#endregion
+  User.hasMany(Payment, { foreignKey: "userId", sourceKey: "id", as: "payment" });
+
   await sequelize.sync({ force: true });
 }
 module.exports = initDatabase;
