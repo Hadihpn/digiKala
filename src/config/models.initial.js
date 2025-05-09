@@ -99,6 +99,27 @@ async function initDatabase() {
     targetKey: "id",
     as: "order",
   });
+  OrderItems.belongsTo(Product, {
+    foreignKey: "productId",
+    targetKey: "id",
+    as: "product",
+  });
+  OrderItems.belongsTo(ProductColor, {
+    foreignKey: "colorId",
+    targetKey: "id",
+    as: "color",
+  });
+  OrderItems.belongsTo(ProductSize, {
+    foreignKey: "sizeId",
+    targetKey: "id",
+    as: "size",
+  });
+  OrderItems.belongsTo(ProductSize, {
+    foreignKey: "sizeId",
+    targetKey: "id",
+    as: "size",
+  });
+  
   User.hasMany(Order, { foreignKey: "userId", sourceKey: "id", as: "orders" });
   Order.hasOne(Payment, {
     foreignKey: "orderId",
@@ -113,6 +134,7 @@ async function initDatabase() {
      onDelete:"CASCADE"
   });
   //#endregion
+ 
   User.hasMany(Payment, { foreignKey: "userId", sourceKey: "id", as: "payment" });
 
   await sequelize.sync({ force: true });
