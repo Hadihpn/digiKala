@@ -119,7 +119,7 @@ async function initDatabase() {
     targetKey: "id",
     as: "size",
   });
-  
+
   User.hasMany(Order, { foreignKey: "userId", sourceKey: "id", as: "orders" });
   Order.hasOne(Payment, {
     foreignKey: "orderId",
@@ -137,6 +137,12 @@ async function initDatabase() {
  
   User.hasMany(Payment, { foreignKey: "userId", sourceKey: "id", as: "payment" });
 
+  //#region ROLES
+  Role.hasMany(RolePermission, {foreignKey: "roleId", sourceKey: "id", as: "permissions"});
+    Permission.hasMany(RolePermission, {foreignKey: "permissionId", sourceKey: "id", as: "roles"});
+    RolePermission.belongsTo(Role, {foreignKey: "roleId", targetKey: "id"});
+    RolePermission.belongsTo(Permission, {foreignKey: "permissionId", targetKey: "id"});
+  //#endregion
   await sequelize.sync({ force: true });
 }
 module.exports = initDatabase;
