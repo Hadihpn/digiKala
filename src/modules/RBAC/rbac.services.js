@@ -30,8 +30,31 @@ async function createPermissionHandler (req, res, next) {
         next(error);
     }
 }
-
+async function assignPermissionToRoleHandler (req, res, next) {
+    try {
+        let {roleId, permissions = []} = req.body;
+        const role = await Role.findOne({where: {id: roleId}});
+        if (!role) throw createHttpError(404, "not found role ");
+        if (permissions?.length > 0) {
+            const permissionCount = await Permission.count({where: {id: {[Op.in]: permissions}}});
+            if (permissionCount !== permissions.length) {
+                throw createHttpError(400, "send correct list of permissions");
+            }
+            const permissionList = permissions.map(per => ({
+                roleId,
+                permissionId: per
+            }));
+            await RolePermission.bulkCreate(permissionList);
+        }
+        return res.json({
+            message: "assigned permissions to role"
+        });
+    } catch (error) {
+        next(error);
+    }
+}
 module.exports = {
     createRoleHandler,
-    createPermissionHandler
+    createPermissionHandler,
+    assignPermissionToRoleHandler
 };
