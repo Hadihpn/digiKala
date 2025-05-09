@@ -6,7 +6,14 @@ const Role = sequelize.define("role", {
     title: {type: DataTypes.STRING, allowNull: false},
     description: {type: DataTypes.STRING, allowNull: true},
 }, {timestamps: false, modelName: "role"});
+const Permission = sequelize.define("permission", {
+    id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
+    title: {type: DataTypes.STRING, allowNull: false},
+    description: {type: DataTypes.STRING, allowNull: true},
+}, {timestamps: false, modelName: "permission"});
+
 
 module.exports = {
-    Role
+    Role,
+    Permission,
 };
